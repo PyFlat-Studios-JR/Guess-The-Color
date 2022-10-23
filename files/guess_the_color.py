@@ -65,7 +65,7 @@ c7.place(x = 168.22, y = 540, width = 20, height = 20)
 c8 = Button(master, text="", bg = farben[7], command = lambda:[set_col(7)])
 c8.place(x = 194.15, y = 540, width = 20, height = 20)
 
-bs = Button(master, text="Bestätigen", state = "disabled", bg = "black", fg = "white", command = lambda:[send()])
+bs = Button(master, text="Submit", state = "disabled", bg = "black", fg = "white", command = lambda:[send()])
 bs.place(x = 20, y = 570, width = 180, height = 20)
 sel_row = 0
 sel_col = 8
