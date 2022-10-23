@@ -1,5 +1,5 @@
 echo off
-title Guess the Color Console
+title Guess The Color Console
 cls
 echo **INFO**
 echo This Screen has no meaning, just minimize it
