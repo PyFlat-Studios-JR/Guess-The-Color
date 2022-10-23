@@ -1,3 +1,6 @@
+# Contact:
+- https://discord.gg/WahFF8jXW5 
+
 # Requirements:
 - (Python 3)(You can just Run Guess_The_Color.exe)
 - (Pip)
