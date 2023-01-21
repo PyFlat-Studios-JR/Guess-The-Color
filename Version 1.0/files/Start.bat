@@ -7,5 +7,4 @@ echo Running Guess The Color v.1.0
 python guess_the_color.py
 cls
 echo Process terminated
-pause
 exit
