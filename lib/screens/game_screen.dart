@@ -9,12 +9,14 @@ class MastermindGame extends StatefulWidget {
   final int rowSize;
   final int colorCount;
   final bool countTogether;
+  final bool isSinglePlayer;
   const MastermindGame(
       {super.key,
       required this.trys,
       required this.rowSize,
       required this.colorCount,
-      required this.countTogether});
+      required this.countTogether,
+      required this.isSinglePlayer});
 
   @override
   MastermindGameState createState() => MastermindGameState();
@@ -49,6 +51,7 @@ class MastermindGameState extends State<MastermindGame> {
   List<List<Color>> guesses = [];
   List<List<int>> guessed = [];
   int currentGuess = 0;
+  bool multiplayerSelectionDone = true;
   bool finished = false;
   bool isWin = false;
   Color? _selectedColor;
@@ -58,6 +61,10 @@ class MastermindGameState extends State<MastermindGame> {
     super.initState();
     trys = widget.trys;
     rowSize = widget.rowSize;
+
+    if (!widget.isSinglePlayer) {
+      multiplayerSelectionDone = false;
+    }
 
     guesses = List.generate(
         trys, (index) => List<Color>.filled(rowSize, Colors.transparent));
@@ -75,9 +82,11 @@ class MastermindGameState extends State<MastermindGame> {
       tempColors = tempColors.sublist(0, tempColors.length - widget.colorCount);
       colors.removeWhere((color) => tempColors.contains(color));
 
-      solution = [...colors];
-      solution.shuffle();
-      solution = solution.sublist(0, rowSize);
+      if (widget.isSinglePlayer) {
+        solution = [...colors];
+        solution.shuffle();
+        solution = solution.sublist(0, rowSize);
+      }
     });
   }
 
@@ -297,6 +306,9 @@ class MastermindGameState extends State<MastermindGame> {
   void resetGame() {
     setState(() {
       currentGuess = 0;
+      if (!widget.isSinglePlayer) {
+        multiplayerSelectionDone = false;
+      }
       finished = false;
       isWin = false;
       _selectedColor = null;
@@ -397,18 +409,20 @@ class MastermindGameState extends State<MastermindGame> {
                       height: 10,
                     ),
                     Text(
-                      !finished
-                          ? "Try ${currentGuess + 1}/$trys"
-                          : isWin
-                              ? "Congratulations!"
-                              : "Almost There!",
+                      widget.isSinglePlayer
+                          ? !finished
+                              ? "Guess ${currentGuess + 1} of $trys"
+                              : isWin
+                                  ? "Congratulations! You won!"
+                                  : "Good try! Keep going!"
+                          : "Choose a combination of colors",
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    if (!finished)
+                    if (!finished && multiplayerSelectionDone)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -449,6 +463,35 @@ class MastermindGameState extends State<MastermindGame> {
                           ),
                         ],
                       )
+                    else if (!multiplayerSelectionDone)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (guesses[0].contains(Colors.grey)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                duration: Duration(milliseconds: 600),
+                                content:
+                                    Text('Please select a color for each dot.'),
+                              ),
+                            );
+                          } else {
+                            setState(() {
+                              solution = guesses[0];
+                              guesses[0] =
+                                  List<Color>.filled(rowSize, Colors.grey);
+                              multiplayerSelectionDone = true;
+                            });
+                          }
+                        },
+                        label: const Text(
+                          "Submit",
+                          style: TextStyle(color: Colors.green),
+                        ),
+                        icon: const Icon(
+                          Icons.check,
+                          color: Colors.green,
+                        ),
+                      ),
                   ],
                 ),
               ),

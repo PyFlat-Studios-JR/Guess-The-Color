@@ -10,11 +10,60 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
+  double difficultyPreset = 3;
   double rowSize = 5;
   double colors = 7;
   double trys = 12;
   bool uniqueColors = true;
   bool countTogether = false;
+  List<Map<String, dynamic>> presets = [
+    {
+      "rowSize": 3,
+      "colors": 4,
+      "trys": 20,
+      "uniqueColors": true,
+    },
+    {
+      "rowSize": 4,
+      "colors": 5,
+      "trys": 15,
+      "uniqueColors": true,
+    },
+    {
+      "rowSize": 5,
+      "colors": 7,
+      "trys": 12,
+      "uniqueColors": true,
+    },
+    {
+      "rowSize": 6,
+      "colors": 10,
+      "trys": 12,
+      "uniqueColors": true,
+    },
+    {
+      "rowSize": 6,
+      "colors": 10,
+      "trys": 12,
+      "uniqueColors": false,
+    }
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreset(3);
+  }
+
+  void _loadPreset(int presetId) {
+    setState(() {
+      Map preset = presets[presetId];
+      rowSize = (preset["rowSize"] as int).toDouble();
+      colors = (preset["colors"] as int).toDouble();
+      trys = (preset["trys"] as int).toDouble();
+      uniqueColors = preset["uniqueColors"];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +78,18 @@ class SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              SettingsOption(
+                  title: "Difficulty Presets",
+                  widget: SettingsSlider(
+                      value: difficultyPreset,
+                      min: 1,
+                      max: presets.length,
+                      onChanged: (value) {
+                        setState(() {
+                          difficultyPreset = value;
+                        });
+                        _loadPreset(value.toInt() - 1);
+                      })),
               SettingsOption(
                 title: 'Row Size',
                 widget: SettingsSlider(
@@ -103,15 +164,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => widget.isSinglePlayer
-                            ? MastermindGame(
-                                trys: trys.toInt(),
-                                rowSize: rowSize.toInt(),
-                                colorCount: colors.toInt(),
-                                countTogether: countTogether,
-                              )
-                            : MultiplayerScreen(),
-                      ),
+                          builder: (context) => MastermindGame(
+                              trys: trys.toInt(),
+                              rowSize: rowSize.toInt(),
+                              colorCount: colors.toInt(),
+                              countTogether: countTogether,
+                              isSinglePlayer: widget.isSinglePlayer)),
                     );
                   },
                   child: const Text('Start Game'),
@@ -186,23 +244,6 @@ class SettingsSlider extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class MultiplayerScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Multiplayer Mode'),
-      ),
-      body: const Center(
-        child: Text(
-          'Multiplayer Screen',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
     );
   }
 }
