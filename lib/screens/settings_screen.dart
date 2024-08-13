@@ -14,6 +14,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   double colors = 7;
   double trys = 12;
   bool uniqueColors = true;
+  bool countTogether = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,84 +25,100 @@ class SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SettingsOption(
-              title: 'Row Size',
-              widget: SettingsSlider(
-                value: rowSize,
-                min: 2,
-                max: 6,
-                onChanged: (value) {
-                  setState(() {
-                    rowSize = value;
-                    if (rowSize > colors) {
-                      colors = rowSize;
-                    }
-                  });
-                },
-              ),
-            ),
-            SettingsOption(
-              title: 'Colors',
-              widget: SettingsSlider(
-                value: colors,
-                min: rowSize.toInt(),
-                max: 18,
-                onChanged: (value) {
-                  setState(() {
-                    colors = value;
-                  });
-                },
-              ),
-            ),
-            SettingsOption(
-                title: "Trys",
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SettingsOption(
+                title: 'Row Size',
                 widget: SettingsSlider(
-                    value: trys,
-                    min: 1,
-                    max: 30,
-                    onChanged: (value) {
-                      setState(() {
-                        trys = value;
-                      });
-                    })),
-            SettingsOption(
-              title: 'Unique Colors Only',
-              widget: SwitchListTile(
-                value: uniqueColors,
-                subtitle: const Text(
-                  'Restrict each row to have unique colors without any duplicates.',
+                  value: rowSize,
+                  min: 2,
+                  max: 6,
+                  onChanged: (value) {
+                    setState(() {
+                      rowSize = value;
+                      if (rowSize > colors) {
+                        colors = rowSize;
+                      }
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    uniqueColors = value;
-                  });
-                },
               ),
-            ),
-            const Spacer(),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => widget.isSinglePlayer
-                          ? MastermindGame(
-                              trys: trys.toInt(),
-                              rowSize: rowSize.toInt(),
-                              colorCount: colors.toInt(),
-                            )
-                          : MultiplayerScreen(),
-                    ),
-                  );
-                },
-                child: const Text('Start Game'),
+              SettingsOption(
+                title: 'Colors',
+                widget: SettingsSlider(
+                  value: colors,
+                  min: rowSize.toInt(),
+                  max: 18,
+                  onChanged: (value) {
+                    setState(() {
+                      colors = value;
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
+              SettingsOption(
+                  title: "Trys",
+                  widget: SettingsSlider(
+                      value: trys,
+                      min: 1,
+                      max: 30,
+                      onChanged: (value) {
+                        setState(() {
+                          trys = value;
+                        });
+                      })),
+              SettingsOption(
+                title: 'Unique Colors Only',
+                widget: SwitchListTile(
+                  value: uniqueColors,
+                  subtitle: const Text(
+                    'Restrict each row to have unique colors without any duplicates.',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      uniqueColors = value;
+                    });
+                  },
+                ),
+              ),
+              SettingsOption(
+                title: 'Count Correct Colors Together',
+                widget: SwitchListTile(
+                  value: countTogether,
+                  subtitle: const Text(
+                    'When enabled, correctly positioned colors are counted as part of the correct colors.',
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      countTogether = value;
+                    });
+                  },
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => widget.isSinglePlayer
+                            ? MastermindGame(
+                                trys: trys.toInt(),
+                                rowSize: rowSize.toInt(),
+                                colorCount: colors.toInt(),
+                                countTogether: countTogether,
+                              )
+                            : MultiplayerScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Start Game'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

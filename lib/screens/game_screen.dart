@@ -8,11 +8,13 @@ class MastermindGame extends StatefulWidget {
   final int trys;
   final int rowSize;
   final int colorCount;
+  final bool countTogether;
   const MastermindGame(
       {super.key,
       required this.trys,
       required this.rowSize,
-      required this.colorCount});
+      required this.colorCount,
+      required this.countTogether});
 
   @override
   MastermindGameState createState() => MastermindGameState();
@@ -22,24 +24,24 @@ class MastermindGameState extends State<MastermindGame> {
   late int trys;
   late int rowSize;
   List<Color> initialColors = [
-    Colors.yellow,
-    Colors.amber,
-    Colors.orange,
-    Colors.orangeAccent,
-    Colors.deepOrange,
-    Colors.red,
-    Colors.pink,
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.cyan,
-    Colors.teal,
-    Colors.green,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.blueGrey,
-    Colors.brown,
+    Colors.yellow, //0xffffeb3b
+    Colors.amber, //0xffffc107
+    Colors.orange, //0xffff9800
+    Colors.orangeAccent, //0xffffab40
+    Colors.deepOrange, //0xffff5722
+    Colors.red, //0xfff44336
+    Colors.pink, //0xffe91e63
+    Colors.purple, //0xff9c27b0
+    Colors.deepPurple, //0xff673ab7
+    Colors.indigo, //0xff3f51b5
+    Colors.blue, //0xff2196f3
+    Colors.cyan, //0xff00bcd4
+    Colors.teal, //0xff009688
+    Colors.green, //0xff4caf50
+    Colors.lightGreen, //0xff8bc34a
+    Colors.lime, //0xffcddc39
+    Colors.blueGrey, //0xff607d8b
+    Colors.brown, //0xff795548
   ];
 
   List<Color> solution = [];
@@ -72,8 +74,6 @@ class MastermindGameState extends State<MastermindGame> {
       tempColors.shuffle();
       tempColors = tempColors.sublist(0, tempColors.length - widget.colorCount);
       colors.removeWhere((color) => tempColors.contains(color));
-
-      print(colors);
 
       solution = [...colors];
       solution.shuffle();
@@ -191,8 +191,15 @@ class MastermindGameState extends State<MastermindGame> {
   }
 
   Widget buildTexts(int row, bool type) {
+    int number;
+    if (widget.countTogether && !type) {
+      number = guessed[row][1] + guessed[row][0];
+    } else {
+      number = type ? guessed[row][0] : guessed[row][1];
+    }
+
     return Text(
-      "${guessed[row][type ? 0 : 1]}",
+      "$number",
       style: TextStyle(
           fontSize: 22,
           color: currentGuess - 1 >= row
@@ -277,16 +284,13 @@ class MastermindGameState extends State<MastermindGame> {
   }
 
   Widget buildRow(int row) {
-    List<Widget> widgets = [];
-    widgets.add(buildTexts(row, false));
-    for (int i = 0; i < rowSize; i++) {
-      widgets.add(buildColorButton(row, i));
-    }
-    widgets.add(buildTexts(row, true));
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: widgets,
+      children: [
+        buildTexts(row, false),
+        for (int i = 0; i < rowSize; i++) buildColorButton(row, i),
+        buildTexts(row, true)
+      ],
     );
   }
 
