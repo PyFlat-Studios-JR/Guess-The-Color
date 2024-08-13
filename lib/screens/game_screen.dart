@@ -9,6 +9,7 @@ class MastermindGame extends StatefulWidget {
   final int rowSize;
   final int colorCount;
   final bool countTogether;
+  final bool uniqueColors;
   final bool isSinglePlayer;
   const MastermindGame(
       {super.key,
@@ -16,6 +17,7 @@ class MastermindGame extends StatefulWidget {
       required this.rowSize,
       required this.colorCount,
       required this.countTogether,
+      required this.uniqueColors,
       required this.isSinglePlayer});
 
   @override
@@ -65,12 +67,11 @@ class MastermindGameState extends State<MastermindGame> {
     if (!widget.isSinglePlayer) {
       multiplayerSelectionDone = false;
     }
-
+    guessed = List.generate(trys, (index) => [0, 0]);
     guesses = List.generate(
         trys, (index) => List<Color>.filled(rowSize, Colors.transparent));
-    guessed = List.generate(trys, (index) => [0, 0]);
-    generateSolution();
     guesses[currentGuess] = List<Color>.filled(rowSize, Colors.grey);
+    generateSolution();
   }
 
   void generateSolution() {
@@ -83,24 +84,47 @@ class MastermindGameState extends State<MastermindGame> {
       colors.removeWhere((color) => tempColors.contains(color));
 
       if (widget.isSinglePlayer) {
-        solution = [...colors];
-        solution.shuffle();
-        solution = solution.sublist(0, rowSize);
+        if (widget.uniqueColors) {
+          solution = [...colors];
+          solution.shuffle();
+          solution = solution.sublist(0, rowSize);
+        } else {
+          solution = [];
+          Random rng = Random();
+          for (int i = 0; i < rowSize; i++) {
+            solution.add(colors[rng.nextInt(colors.length)]);
+          }
+        }
       }
     });
   }
 
   void checkGuess() {
+    List<Color> currentGuessList = guesses[currentGuess];
     int correctColorAndPosition = 0;
     int correctColorOnly = 0;
 
+    var solutionColorCount = <Color, int>{};
+    var guessColorCount = <Color, int>{};
+
     for (int i = 0; i < rowSize; i++) {
-      if (guesses[currentGuess][i] == solution[i]) {
+      if (currentGuessList[i] == solution[i]) {
         correctColorAndPosition++;
-      } else if (solution.contains(guesses[currentGuess][i])) {
-        correctColorOnly++;
+      } else {
+        solutionColorCount[solution[i]] =
+            (solutionColorCount[solution[i]] ?? 0) + 1;
+        guessColorCount[currentGuessList[i]] =
+            (guessColorCount[currentGuessList[i]] ?? 0) + 1;
       }
     }
+
+    for (var color in guessColorCount.keys) {
+      if (solutionColorCount.containsKey(color)) {
+        correctColorOnly +=
+            min(guessColorCount[color]!, solutionColorCount[color]!);
+      }
+    }
+
     if (correctColorAndPosition == rowSize) {
       isWin = true;
       showSolutionDialog(true);
@@ -260,7 +284,8 @@ class MastermindGameState extends State<MastermindGame> {
             setState(() {
               if (_selectedColor != null) {
                 if (row == currentGuess) {
-                  if (guesses[row].contains(_selectedColor)) {
+                  if (widget.uniqueColors &&
+                      guesses[row].contains(_selectedColor)) {
                     int idx = guesses[row].indexOf(_selectedColor!);
                     guesses[row][idx] = Colors.grey;
                   }
@@ -280,7 +305,7 @@ class MastermindGameState extends State<MastermindGame> {
       onAcceptWithDetails: (details) {
         setState(() {
           if (row == currentGuess) {
-            if (guesses[row].contains(details.data)) {
+            if (widget.uniqueColors && guesses[row].contains(details.data)) {
               int idx = guesses[row].indexOf(details.data);
               guesses[row][idx] = Colors.grey;
             }
@@ -312,10 +337,10 @@ class MastermindGameState extends State<MastermindGame> {
       finished = false;
       isWin = false;
       _selectedColor = null;
-      generateSolution();
       guesses = List.generate(
           trys, (index) => List<Color>.filled(rowSize, Colors.transparent));
       guesses[currentGuess] = List<Color>.filled(rowSize, Colors.grey);
+      generateSolution();
     });
   }
 
@@ -409,7 +434,7 @@ class MastermindGameState extends State<MastermindGame> {
                       height: 10,
                     ),
                     Text(
-                      widget.isSinglePlayer
+                      widget.isSinglePlayer || multiplayerSelectionDone
                           ? !finished
                               ? "Guess ${currentGuess + 1} of $trys"
                               : isWin
@@ -429,10 +454,20 @@ class MastermindGameState extends State<MastermindGame> {
                           ElevatedButton.icon(
                             onPressed: () {
                               setState(() {
-                                List<Color> randomColors = [...colors];
-                                randomColors.shuffle();
-                                guesses[currentGuess] =
-                                    randomColors.sublist(0, rowSize);
+                                if (widget.uniqueColors) {
+                                  List<Color> randomColors = [...colors];
+                                  randomColors.shuffle();
+                                  guesses[currentGuess] =
+                                      randomColors.sublist(0, rowSize);
+                                } else {
+                                  List<Color> randomColors = [];
+                                  Random rng = Random();
+                                  for (int i = 0; i < rowSize; i++) {
+                                    randomColors.add(
+                                        colors[rng.nextInt(colors.length)]);
+                                  }
+                                  guesses[currentGuess] = randomColors;
+                                }
                               });
                             },
                             label: const Text("Random Colors"),

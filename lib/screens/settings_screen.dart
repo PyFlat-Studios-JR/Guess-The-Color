@@ -169,6 +169,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                               rowSize: rowSize.toInt(),
                               colorCount: colors.toInt(),
                               countTogether: countTogether,
+                              uniqueColors: uniqueColors,
                               isSinglePlayer: widget.isSinglePlayer)),
                     );
                   },
