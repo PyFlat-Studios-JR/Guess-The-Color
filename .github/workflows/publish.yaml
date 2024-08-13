@@ -21,6 +21,8 @@ jobs:
       - run: |
           cd build/web
           git init
+          git config --global user.email johannes.25406@gmail.com
+          git config --global user.name Johannes Rößler
           git status
           git remote add origin https://${{secrets.TOKEN}}@github.com/PyFlat/mastermind.git
           git checkout -b gh-pages
