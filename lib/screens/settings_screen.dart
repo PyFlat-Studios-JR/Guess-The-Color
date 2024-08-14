@@ -52,7 +52,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPreset(3);
+    _loadPreset(2);
   }
 
   void _loadPreset(int presetId) {
