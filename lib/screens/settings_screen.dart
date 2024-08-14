@@ -72,6 +72,26 @@ class SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Game Settings'),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MastermindGame(
+                      trys: trys.toInt(),
+                      rowSize: rowSize.toInt(),
+                      colorCount: colors.toInt(),
+                      countTogether: countTogether,
+                      uniqueColors: uniqueColors,
+                      isSinglePlayer: widget.isSinglePlayer)),
+            );
+          },
+          label: const Text(
+            "Start",
+          ),
+          icon: const Icon(
+            Icons.check,
+          )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -156,24 +176,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                       countTogether = value;
                     });
                   },
-                ),
-              ),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MastermindGame(
-                              trys: trys.toInt(),
-                              rowSize: rowSize.toInt(),
-                              colorCount: colors.toInt(),
-                              countTogether: countTogether,
-                              uniqueColors: uniqueColors,
-                              isSinglePlayer: widget.isSinglePlayer)),
-                    );
-                  },
-                  child: const Text('Start Game'),
                 ),
               ),
             ],

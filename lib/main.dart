@@ -14,7 +14,7 @@ class MastermindApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
-      home: StartScreen(),
+      home: const StartScreen(),
     );
   }
 }

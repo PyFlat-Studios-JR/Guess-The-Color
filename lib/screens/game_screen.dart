@@ -153,11 +153,11 @@ class MastermindGameState extends State<MastermindGame> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               "Correct Solution:",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(
@@ -170,7 +170,7 @@ class MastermindGameState extends State<MastermindGame> {
                     size: 40,
                     color: color,
                   ),
-                SizedBox(
+                const SizedBox(
                   width: 5,
                 )
               ],
@@ -231,15 +231,18 @@ class MastermindGameState extends State<MastermindGame> {
       number = type ? guessed[row][0] : guessed[row][1];
     }
 
-    return Text(
-      "$number",
-      style: TextStyle(
-          fontSize: 22,
-          color: currentGuess - 1 >= row
-              ? type
-                  ? Colors.red
-                  : Colors.white
-              : Colors.transparent),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        "$number",
+        style: TextStyle(
+            fontSize: 22,
+            color: currentGuess - 1 >= row
+                ? type
+                    ? Colors.red
+                    : Colors.white
+                : Colors.transparent),
+      ),
     );
   }
 
@@ -248,78 +251,103 @@ class MastermindGameState extends State<MastermindGame> {
     if (guesses[row][column] != Colors.grey && row == currentGuess) {
       draggable = true;
     }
-    return DragTarget<Color>(
-      builder: (context, candidateData, rejectedData) {
-        return GestureDetector(
-          child: Draggable<Color>(
-            maxSimultaneousDrags: draggable ? null : 0,
-            data: guesses[row][column],
-            feedback: ColorOption(
-              selected: false,
-              color: guesses[row][column],
-              onTap: () {},
-            ),
-            childWhenDragging: Container(
-              width: 40,
-              height: 40,
-              margin: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
-              ),
-            ),
-            child: Container(
-              width: 40,
-              height: 40,
-              margin: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+      child: DragTarget<Map>(
+        builder: (context, candidateData, rejectedData) {
+          return GestureDetector(
+            child: Draggable<Map>(
+              maxSimultaneousDrags: draggable ? null : 0,
+              data: {
+                "color": guesses[row][column],
+                "row": row,
+                "column": column
+              },
+              feedback: ColorOption(
+                selected: false,
                 color: guesses[row][column],
-                shape: BoxShape.circle,
+                onTap: () {},
+              ),
+              childWhenDragging: Container(
+                width: 40,
+                height: 40,
+                margin: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color:
+                      widget.uniqueColors ? Colors.grey : guesses[row][column],
+                  shape: BoxShape.circle,
+                ),
+              ),
+              ignoringFeedbackSemantics: true,
+              ignoringFeedbackPointer: true,
+              child: Container(
+                width: 40,
+                height: 40,
+                margin: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: guesses[row][column],
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-            ignoringFeedbackSemantics: true,
-            ignoringFeedbackPointer: true,
-          ),
-          onTap: () async {
-            setState(() {
-              if (_selectedColor != null) {
-                if (row == currentGuess) {
-                  if (widget.uniqueColors &&
-                      guesses[row].contains(_selectedColor)) {
-                    int idx = guesses[row].indexOf(_selectedColor!);
-                    guesses[row][idx] = Colors.grey;
-                  }
+            onTap: () async {
+              setState(() {
+                if (_selectedColor != null) {
+                  if (row == currentGuess) {
+                    if (widget.uniqueColors &&
+                        guesses[row].contains(_selectedColor)) {
+                      int idx = guesses[row].indexOf(_selectedColor!);
+                      guesses[row][idx] = Colors.grey;
+                    }
 
-                  guesses[row][column] = _selectedColor!;
+                    guesses[row][column] = _selectedColor!;
+                  }
+                  if (widget.uniqueColors) {
+                    _selectedColor = null;
+                  }
+                } else {
+                  if (row == currentGuess) {
+                    guesses[row][column] = Colors.grey;
+                  }
                 }
-                _selectedColor = null;
-              } else {
-                if (row == currentGuess) {
-                  guesses[row][column] = Colors.grey;
+              });
+            },
+            onLongPress: () {
+              if (row == currentGuess) {
+                setState(() {
+                  _selectedColor = guesses[row][column];
+                });
+              }
+            },
+          );
+        },
+        onAcceptWithDetails: (details) {
+          setState(() {
+            if (row == currentGuess) {
+              if (details.data["row"] != null) {
+                Color oldColor = guesses[row][column];
+                if (oldColor != Colors.grey) {
+                  guesses[details.data["row"]][details.data["column"]] =
+                      oldColor;
                 }
               }
-            });
-          },
-        );
-      },
-      onAcceptWithDetails: (details) {
-        setState(() {
-          if (row == currentGuess) {
-            if (widget.uniqueColors && guesses[row].contains(details.data)) {
-              int idx = guesses[row].indexOf(details.data);
-              guesses[row][idx] = Colors.grey;
-            }
+              if (widget.uniqueColors &&
+                  guesses[row].contains(details.data["color"])) {
+                int idx = guesses[row].indexOf(details.data["color"]);
+                guesses[row][idx] = Colors.grey;
+              }
 
-            guesses[row][column] = details.data;
-          }
-        });
-      },
+              guesses[row][column] = details.data["color"];
+            }
+          });
+        },
+      ),
     );
   }
 
   Widget buildRow(int row) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildTexts(row, false),
         for (int i = 0; i < rowSize; i++) buildColorButton(row, i),
@@ -345,8 +373,8 @@ class MastermindGameState extends State<MastermindGame> {
   }
 
   Widget _buildDraggableColorOption(Color color) {
-    return Draggable<Color>(
-      data: color,
+    return Draggable<Map>(
+      data: {"color": color},
       feedback: ColorOption(
         selected: false,
         color: color,
@@ -380,22 +408,6 @@ class MastermindGameState extends State<MastermindGame> {
         centerTitle: true,
         title: const Text('Mastermind'),
         actions: [
-          IconButton(
-              tooltip: "Clear Row",
-              onPressed: () {
-                setState(() {
-                  for (int i = 0; i <= 4; i++) {
-                    guesses[currentGuess][i] = Colors.grey;
-                  }
-                });
-              },
-              icon: const Icon(
-                Icons.clear,
-                size: 30,
-              )),
-          const SizedBox(
-            width: 5,
-          ),
           IconButton(
               tooltip: "Restart Game",
               onPressed: () async {
@@ -448,8 +460,10 @@ class MastermindGameState extends State<MastermindGame> {
                       height: 10,
                     ),
                     if (!finished && multiplayerSelectionDone)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      Wrap(
+                        spacing: 15,
+                        runSpacing: 15,
+                        alignment: WrapAlignment.spaceAround,
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
@@ -472,6 +486,39 @@ class MastermindGameState extends State<MastermindGame> {
                             },
                             label: const Text("Random Colors"),
                             icon: const Icon(Icons.shuffle),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (currentGuess >= 1) {
+                                setState(() {
+                                  guesses[currentGuess] =
+                                      List.from(guesses[currentGuess - 1]);
+                                });
+                              }
+                            },
+                            label: const Text(
+                              "Copy Last Row",
+                            ),
+                            icon: const Icon(
+                              Icons.copy,
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                for (int i = 0; i < rowSize; i++) {
+                                  guesses[currentGuess][i] = Colors.grey;
+                                }
+                              });
+                            },
+                            label: const Text(
+                              "Clear Row",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            icon: const Icon(
+                              Icons.clear,
+                              color: Colors.red,
+                            ),
                           ),
                           ElevatedButton.icon(
                             onPressed: () {
