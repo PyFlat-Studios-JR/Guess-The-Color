@@ -500,7 +500,7 @@ class MastermindGameState extends State<MastermindGame> {
                               "Copy Last Row",
                             ),
                             icon: const Icon(
-                              Icons.copy,
+                              Icons.copy_rounded,
                             ),
                           ),
                           ElevatedButton.icon(
