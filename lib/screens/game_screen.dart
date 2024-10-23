@@ -350,7 +350,16 @@ class MastermindGameState extends State<MastermindGame> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         buildTexts(row, false),
-        for (int i = 0; i < rowSize; i++) buildColorButton(row, i),
+        GestureDetector(
+          child: Row(children: [
+            for (int i = 0; i < rowSize; i++) buildColorButton(row, i),
+          ]),
+          onDoubleTap: () {
+            setState(() {
+              guesses[currentGuess] = List.from(guesses[row]);
+            });
+          },
+        ),
         buildTexts(row, true)
       ],
     );
