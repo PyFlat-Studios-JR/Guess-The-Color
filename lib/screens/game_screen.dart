@@ -57,6 +57,7 @@ class MastermindGameState extends State<MastermindGame> {
   bool finished = false;
   bool isWin = false;
   Color? _selectedColor;
+  DragStartDetails? _dragStartDetails;
 
   @override
   void initState() {
@@ -354,10 +355,20 @@ class MastermindGameState extends State<MastermindGame> {
           child: Row(children: [
             for (int i = 0; i < rowSize; i++) buildColorButton(row, i),
           ]),
-          onDoubleTap: () {
-            setState(() {
-              guesses[currentGuess] = List.from(guesses[row]);
-            });
+          onVerticalDragStart: (DragStartDetails verticalDragStart) {
+            _dragStartDetails = verticalDragStart;
+          },
+          onVerticalDragEnd: (DragEndDetails verticalDragEnd) {
+            final dragDistance = _dragStartDetails!.globalPosition.dy -
+                verticalDragEnd.globalPosition.dy;
+
+            if (dragDistance < -5) {
+              if (mounted) {
+                setState(() {
+                  guesses[currentGuess] = List.from(guesses[row]);
+                });
+              }
+            }
           },
         ),
         buildTexts(row, true)

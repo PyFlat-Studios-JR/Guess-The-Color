@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../components/game_mode_button.dart';
@@ -44,7 +45,7 @@ class StartScreen extends StatelessWidget {
             ),
           ),
           Spacer(),
-          Text("© 2024 PyFlat - v1.0.0"),
+          if (kIsWeb) Text("© 2024 PyFlat - v1.0.0"),
           SizedBox(
             height: 10,
           )
